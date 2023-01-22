@@ -5,8 +5,10 @@ import com.example.mvc.model.entity.User;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @WebAppConfiguration
 public class UserRepositoryTests extends MvcApplicationTests {
@@ -31,12 +33,30 @@ public class UserRepositoryTests extends MvcApplicationTests {
 
     }
 
+    @Test
     public void read() {
-
+        // userRepository.findAll(); 리스트 전체를 가져옴
+        Optional<User> user = userRepository.findById(3L); // Optional은 있을 수도 있고, 없을 수도 있다는 뜻
+        user.ifPresent(selectUser -> {
+            System.out.println("user : " + selectUser);
+            System.out.println("email : " + selectUser.getEmail());
+        });
     }
 
+    @Test
     public void update() {
+        Optional<User> user = userRepository.findById(3L);
 
+        user.ifPresent(selectUser -> {
+            selectUser.setAccount("PPPP");
+            selectUser.setUpdatedAt(LocalDateTime.now());
+            selectUser.setUpdatedBy("update method");
+
+            userRepository.save(selectUser);
+            // 해당 user를 repository에 save 해주어야 한다.
+            // ※ selectUser라는 새로운 객체에 값을 담아서 수정을 하게 되는데, findById를 기반으로 Spring 이 먼저 탐색을 수행 후,
+            // 값이 존재할 경우 해당 컬럼을 update 해주게 된다.
+        });
     }
 
     public void delete() {
